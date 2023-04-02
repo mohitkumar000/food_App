@@ -1,24 +1,24 @@
 const express = require("express");
-
 const app = express();
+const mongoose=require('mongoose');
 //middleware func-> post, front-> json
 app.use(express.json()); //global middleware 
 app.listen(3000);
 
-let users = [
-  {
-    id: 1,
-    name: "Abhishek",
-  },
-  {
-    id: 2,
-    name: "Jasbir",
-  },
-  {
-    id: 3,
-    name: "Kartik",
-  },
-];
+// let users = [
+//   {
+//     id: 1,
+//     name: "Abhishek",
+//   },
+//   {
+//     id: 2,
+//     name: "Jasbir",
+//   },
+//   {
+//     id: 3,
+//     name: "Kartik",
+//   },
+// ];
 //mini app
 const userRouter = express.Router();
 const authRouter=express.Router();
@@ -28,9 +28,9 @@ app.use("/auth", authRouter);
 
 userRouter
   .route("/")
-  .get(getUser) //path specific middleware
+  .get(getUsers) //path specific middleware
   .post(postUser)
-  .patch(updateUser) 
+  .patch(updateUser)
   .delete(deleteUser);
 
 userRouter.route("/:id").get(getUserById);
@@ -40,8 +40,12 @@ authRouter
 .get(middleware1,getSignUp,middleware2)
 .post(postSignUp);
 
-function getUser(req, res) {
-  res.send(users);
+async function getUsers(req, res) {
+  // console.log(req.query);
+  // let allUsers=await userModel.find();
+  let user=await userModel.findOne({name:'Abhishek'});
+  res.json({message:'list of all users',
+  data:allUsers});
 }
 
 function postUser(req, res) {
@@ -53,38 +57,34 @@ function postUser(req, res) {
   });
 }
 
-function updateUser(req, res) {
+async function updateUser(req, res) {
   console.log("req.body-> ", req.body);
   //update data in users obj
   let dataToBeUpdated = req.body;
-  for (key in dataToBeUpdated) {
-    users[key] = dataToBeUpdated[key];
-  }
+  let user= await userModel.findOneAndUpdate({email:'abc@gmail.com'},dataToBeUpdated);
+  // for (key in dataToBeUpdated) {
+  //   users[key] = dataToBeUpdated[key];
+  // }
   res.json({
     message: "data updated successfully",
+    data:user
   });
 }
 
-function deleteUser(req, res) {
-  users = {};
+async function deleteUser(req, res) {
+  // users = {};
+  let dataToBeDeleted=req.body;
+  let user=await userModel.findOneAndDelete(dataToBeDeleted);
   res.json({
     message: "data has been deleted",
+    data:user
   });
 }
 
 function getUserById(req, res) {
-  console.log(req.params.id);
-  let paramId = req.params.id;
-  let obj = {};
-  for (let i = 0; i < users.length; i++) {
-    if (users[i]["id"] == paramId) {
-      obj = users[i];
-    }
-  }
-  res.json({
-    message: "req received",
-    data: obj,
-  });
+  console.log(req.params.username);
+    console.log(req.params);
+    res.send("user id received");
 }
 
 function middleware1(req,res,next){
@@ -102,14 +102,64 @@ function middleware2(req,res){
 function getSignUp(req,res,next){
   console.log('getSignUp called');
   next();
-   res.sendFile('/public/index.html',{root:__dirname});
+  // res.sendFile('/public/index.html',{root:__dirname});
 }
 
-function postSignUp(req,res){
-  let obj=req.body;
-  console.log('backend',obj);
+async function postSignUp(req,res){
+  let dataObj=req.body;
+  let user=await userModel.create(dataObj);
+  console.log('backend',user);
   res.json({
     message:"user signed up",
-    data:obj
+    data:user
   });
 }
+
+
+//mongoDB
+
+const db_link='mongodb+srv://backend_app:UKVM92aS7e9aENh7@cluster0.nvjh2w2.mongodb.net/?retryWrites=true&w=majority';
+mongoose.connect(db_link)
+.then(function(db){
+   
+  console.log('db connected');
+})
+.catch(function(err){
+  console.log(err);
+});
+
+const userSchema=mongoose.Schema({
+  name:{
+    type:String,
+    required:true
+  },
+  email:{
+    type:String,
+    required:true,
+    unique:true
+  },
+  password:{
+    type:String,
+    required:true,
+    minLength:8
+  },
+  confirmPassword:{
+    type:String,
+    required:true,
+    minLength:8
+  }
+});
+
+// model
+const userModel=mongoose.model('userModel',userSchema);
+
+ (async function createUser(){
+ let user1={
+      name:'1Jasbir',
+      email:'fvabcd@gmail.com',
+      password:'13112345678',
+      confirmPassword:'142412345678'
+  };
+    let data= await userModel.create(user1);
+    console.log(data);
+ })();
