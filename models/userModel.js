@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
-//const db_link = require("../secrets");
+const db_link = require("../secrets");
 const emailValidator = require("email-validator");
-const db_link='mongodb+srv://backend_app:UKVM92aS7e9aENh7@cluster0.nvjh2w2.mongodb.net/?retryWrites=true&w=majority';
 const bcrypt = require('bcrypt');
 mongoose
   .connect(db_link)
@@ -55,13 +54,13 @@ userSchema.pre("save", function () {
   this.confirmPassword = undefined;
 });
 
-userSchema.pre('save', async function () {
-    let salt = await bcrypt.genSalt();
-    console.log(salt);
-    let hashedString = await bcrypt.hash(this.password, salt);
-    this.password = hashedString;
-    // console.log(hashedString);
-})
+// userSchema.pre('save', async function () {
+//     let salt = await bcrypt.genSalt();
+//     console.log(salt);
+//     let hashedString = await bcrypt.hash(this.password, salt);
+//     this.password = hashedString;
+//     // console.log(hashedString);
+// })
 
 //models
 const userModel = mongoose.model("userModel", userSchema);
