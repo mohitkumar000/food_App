@@ -11,4 +11,4 @@ const authRouter = require('./Routers/authRouter');
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
 
-app.listen(5000);
+app.listen(6000);

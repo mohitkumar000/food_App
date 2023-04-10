@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
-const db_link = require("../secrets");
+//const { db_link } = require("../secrets");
 const emailValidator = require("email-validator");
 const bcrypt = require('bcrypt');
+db_link='mongodb+srv://backend_app:UKVM92aS7e9aENh7@cluster0.nvjh2w2.mongodb.net/?retryWrites=true&w=majority';
 mongoose
   .connect(db_link)
   .then(function (db) {
@@ -38,6 +39,15 @@ const userSchema = mongoose.Schema({
       return this.confirmPassword == this.password;
     },
   },
+  role: {
+    type: String,
+    enum: ['admin', 'user', 'restaurantowner', 'deliveryboy'],
+    default:'user'
+  },
+  profileImage: {
+    type: String,
+    default:'img/users/default.jpg'
+  }
 });
 
 //-------------->learning hooks<-----------------
