@@ -1,6 +1,7 @@
 const userModel = require("../models/userModel");
 var jwt = require("jsonwebtoken");
-const { JWT_KEY } = require("../helper");
+const { JWT_KEY } = require("../secrets");
+console.log(JWT_KEY);
 
 
 module.exports.signup=async function (req, res) {

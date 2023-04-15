@@ -1,6 +1,8 @@
 var jwt = require("jsonwebtoken");
 const userModel = require("./models/userModel");
 const { JWT_KEY } = require("./secrets");
+//console.log(JWT_KEY);
+
 
 //protectRoute
 module.exports.protectRoute = async function (req, res, next) {
@@ -11,7 +13,7 @@ module.exports.protectRoute = async function (req, res, next) {
     const user = await userModel.findById(payloadObj.payload);
     req.id = user.id;
     req.role = user.role;
-    if (isVerified) next();
+    if (payloadObj) next();
     else {
       req.json({
         msg: "user not verified",
@@ -32,8 +34,11 @@ module.exports.isAuthorised = function (roles) {
     if (roles.includes(role)) {
       next();
     }
+   else
+   {
     res.status(401).json({
-      msg: "operation not allowed",
-    });
+      msg: "Invalid_role",
+    }); 
+   }
   };
 };
