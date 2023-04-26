@@ -1,8 +1,8 @@
 const userModel = require("../models/userModel");
 var jwt = require("jsonwebtoken");
-const { JWT_KEY } = require("../secrets");
-console.log(JWT_KEY);
-
+const { JWT_KEY } = require('../secrets');
+const { use } = require("../Routers/userRouter");
+console.log("1234 ", JWT_KEY);
 
 module.exports.signup=async function (req, res) {
   try {
@@ -55,6 +55,66 @@ module.exports.login=async function (req, res) {
       msg: err.message,
     });
   }
+}
+
+module.exports.forgetpassword = async function (req, res) {
+  try {
+    let { email } = req.body;
+    const user = userModel.findOne({ email: email });
+    if (user) {
+      //resetToken
+      const resetToken = user.createResetToken();
+      //create link 
+      //https://xyz.com/resetPassword/resetToken
+      let resetPasswordLink = `${req.protocol}://${req.get('host')}/resetpassword/${resetToken}`;
+      //send email to user
+      //nodemailer
+    }
+    else {
+      res.json({
+        msg:'user not found'
+      })
+    }
+  }
+  catch (err) {
+    res.status(500).json({
+      msg: err.message
+    });
+  }
+}
+
+module.exports.resetpassword = async function (req, res) {
+  try {
+    const token = req.params.token;
+    let { password, confirmPassword } = req.body;
+    const user = await userModel.findOne({ resetToken: token });
+    if (user) {
+      //resetPasswordHandler will update user in db 
+      user.resetPasswordHandler(password, confirmPassword);
+      await user.save();
+      res.json({
+        msg: "password chnaged succesfully",
+      });
+    }
+    else{
+      res.json({
+        msg: "user not found",
+      });
+    }
+    
+  }
+  catch (err) {
+    res.json({
+      msg:err.message
+    })
+  }
+}
+
+module.exports.logout = function (req,res) {
+  res.cookie('login', ' ', { maxAge: 1 });
+  res.json({
+    msg:'user logged out successfully'
+  })
 }
 
 
