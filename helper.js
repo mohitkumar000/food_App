@@ -1,8 +1,6 @@
 var jwt = require("jsonwebtoken");
 const userModel = require("./models/userModel");
 const { JWT_KEY } = require("./secrets");
-//console.log(JWT_KEY);
-
 
 //protectRoute
 module.exports.protectRoute = async function (req, res, next) {
@@ -34,11 +32,10 @@ module.exports.isAuthorised = function (roles) {
     if (roles.includes(role)) {
       next();
     }
-   else
-   {
-    res.status(401).json({
-      msg: "Invalid_role",
-    }); 
-   }
+    else {
+      res.status(401).json({
+        msg: "role invalid",
+      });
+    }
   };
 };
